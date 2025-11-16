@@ -7,7 +7,7 @@ import { ClinicalTrial, getTrials } from "@/lib/api";
 import { Search, Bookmark, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function Trials() {
+export default function Trials({ userId }: { userId: string }) {
   const [trials, setTrials] = useState<ClinicalTrial[]>([]);
   const [filteredTrials, setFilteredTrials] = useState<ClinicalTrial[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

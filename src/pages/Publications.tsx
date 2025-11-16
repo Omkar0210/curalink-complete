@@ -7,7 +7,7 @@ import { Publication, getPublications } from "@/lib/api";
 import { Search, Bookmark, ExternalLink, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function Publications() {
+export default function Publications({ userId }: { userId: string }) {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [filteredPublications, setFilteredPublications] = useState<Publication[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

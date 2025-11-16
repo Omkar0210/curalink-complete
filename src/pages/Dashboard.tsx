@@ -22,9 +22,10 @@ import { Link } from "react-router-dom";
 
 interface DashboardProps {
   userType: UserType;
+  userId: string;
 }
 
-export default function Dashboard({ userType }: DashboardProps) {
+export default function Dashboard({ userType, userId }: DashboardProps) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
 

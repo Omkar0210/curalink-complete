@@ -34,7 +34,7 @@ const categories = [
   "Collaboration Opportunities",
 ];
 
-export default function Forums() {
+export default function Forums({ userId, userName }: { userId: string; userName: string }) {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<ForumPost[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

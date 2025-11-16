@@ -51,7 +51,7 @@ const mockSavedItems = {
   ],
 };
 
-export default function Favourites() {
+export default function Favourites({ userId }: { userId: string }) {
   const [savedItems, setSavedItems] = useState(mockSavedItems);
   const { toast } = useToast();
 
