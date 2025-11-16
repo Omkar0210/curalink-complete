@@ -160,6 +160,19 @@ export default function Dashboard({ userType }: DashboardProps) {
 function RecommendationCard({ recommendation }: { recommendation: Recommendation }) {
   const { type, item, reason } = recommendation;
 
+  const getNavigationPath = () => {
+    switch (type) {
+      case "expert":
+        return "/experts";
+      case "trial":
+        return "/trials";
+      case "publication":
+        return "/publications";
+      default:
+        return "/dashboard";
+    }
+  };
+
   return (
     <Card className="p-6 hover:shadow-lg transition-shadow">
       <div className="space-y-4">
@@ -207,9 +220,11 @@ function RecommendationCard({ recommendation }: { recommendation: Recommendation
 
         <p className="text-sm text-muted-foreground">{reason}</p>
 
-        <Button className="w-full" size="sm">
-          View Details
-          <ArrowRight className="ml-2 h-4 w-4" />
+        <Button className="w-full" size="sm" asChild>
+          <Link to={getNavigationPath()}>
+            View Details
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
         </Button>
       </div>
     </Card>
