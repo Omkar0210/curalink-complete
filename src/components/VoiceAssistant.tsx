@@ -71,12 +71,21 @@ export function VoiceAssistant() {
     setError("");
 
     try {
+      // Request microphone permission first
+      console.log("[VoiceAssistant] Requesting microphone permission...");
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("[VoiceAssistant] Microphone permission granted");
+
+      // Start the call
+      console.log("[VoiceAssistant] Calling vapi.start()...");
       await vapiRef.current.start(ASSISTANT_ID);
       console.log("[VoiceAssistant] Call started successfully");
     } catch (error) {
       console.error("[VoiceAssistant] Error starting call:", error);
-      setError(`Failed to start: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      setError(`Failed to start: ${errorMsg}`);
       setIsLoading(false);
+      setIsActive(false);
     }
   };
 
