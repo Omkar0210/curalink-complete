@@ -22,7 +22,7 @@ export function VoiceAssistant() {
     if (window.vapiSDK) {
       console.log("[VoiceAssistant] VAPI SDK already loaded");
       try {
-        const vapiInstance = window.vapiSDK("8c91c3b0-bdef-4ceb-aec7-77f6653e8185");
+        const vapiInstance = window.vapiSDK("1997e499-bcaf-4762-bab1-caae33735e04");
         console.log("[VoiceAssistant] VAPI instance created:", vapiInstance);
         setVapi(vapiInstance);
         setIsLoading(false);
@@ -53,8 +53,8 @@ export function VoiceAssistant() {
       
       if (window.vapiSDK) {
         try {
-          console.log("[VoiceAssistant] Creating VAPI instance with key: 8c91c3b0-bdef-4ceb-aec7-77f6653e8185");
-          const vapiInstance = window.vapiSDK("8c91c3b0-bdef-4ceb-aec7-77f6653e8185");
+          console.log("[VoiceAssistant] Creating VAPI instance with key: 1997e499-bcaf-4762-bab1-caae33735e04");
+          const vapiInstance = window.vapiSDK("1997e499-bcaf-4762-bab1-caae33735e04");
           console.log("[VoiceAssistant] VAPI instance created successfully:", vapiInstance);
           setVapi(vapiInstance);
           setIsLoading(false);
