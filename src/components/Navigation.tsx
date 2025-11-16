@@ -7,8 +7,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, User, LogOut, Home, Search, Beaker, FileText, MessageSquare, Star, UserCircle, RefreshCw } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Menu, User, LogOut, Home, Search, Beaker, FileText, MessageSquare, Star, UserCircle, RefreshCw, ArrowLeft } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface NavigationProps {
@@ -20,6 +20,7 @@ interface NavigationProps {
 export function Navigation({ userType, onLogout, onChangeAccountType }: NavigationProps) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const patientLinks = [
     { href: "/", label: "Home", icon: Home },
@@ -49,6 +50,17 @@ export function Navigation({ userType, onLogout, onChangeAccountType }: Navigati
         <div className="flex items-center justify-between h-16">
           {/* Menu Button & Logo */}
           <div className="flex items-center gap-3">
+            {location.pathname !== "/dashboard" && (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate(-1)}
+                title="Go back"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            )}
+            
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
