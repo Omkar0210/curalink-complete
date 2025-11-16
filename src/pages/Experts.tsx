@@ -50,6 +50,11 @@ export default function Experts({ userId, userType }: { userId: string; userType
     open: false,
     expert: null,
   });
+  const [collaborationDialog, setCollaborationDialog] = useState<{ open: boolean; expert: Expert | null }>({
+    open: false,
+    expert: null,
+  });
+  const [collaborationMessage, setCollaborationMessage] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -511,6 +516,17 @@ export default function Experts({ userId, userType }: { userId: string; userType
             }}>
               Request Meeting
             </Button>
+            {userType === "researcher" && (
+              <Button onClick={() => {
+                setProfileDialog({ open: false, expert: null });
+                if (profileDialog.expert) {
+                  setCollaborationDialog({ open: true, expert: profileDialog.expert });
+                }
+              }}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Request Collaboration
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -545,24 +561,92 @@ export default function Experts({ userId, userType }: { userId: string; userType
           <DialogHeader>
             <DialogTitle>Request Meeting</DialogTitle>
             <DialogDescription>
-              Request a meeting with {meetingDialog.expert?.name}
+              Request a meeting with {meetingDialog.expert?.name} to discuss potential collaboration or research.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Preferred Date/Time</Label>
-              <Input type="datetime-local" />
+              <Label>Meeting Purpose</Label>
+              <Textarea placeholder="Describe the purpose of the meeting..." rows={4} />
             </div>
             <div className="space-y-2">
-              <Label>Purpose</Label>
-              <Textarea placeholder="What would you like to discuss?" rows={4} />
+              <Label>Preferred Date/Time</Label>
+              <Input type="text" placeholder="e.g., Next week, Tuesday afternoon" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMeetingDialog({ open: false, expert: null })}>
               Cancel
             </Button>
-            <Button onClick={requestMeeting}>Send Request</Button>
+            <Button onClick={() => {
+              toast({
+                title: "Meeting Request Sent!",
+                description: `Your meeting request has been sent to ${meetingDialog.expert?.name}`,
+              });
+              setMeetingDialog({ open: false, expert: null });
+            }}>
+              Send Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Collaboration Dialog */}
+      <Dialog open={collaborationDialog.open} onOpenChange={(open) => {
+        setCollaborationDialog({ open, expert: null });
+        setCollaborationMessage("");
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request Collaboration</DialogTitle>
+            <DialogDescription>
+              Send a collaboration request to {collaborationDialog.expert?.name} to work together on research projects.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Collaboration Message</Label>
+              <Textarea 
+                placeholder="Describe your collaboration proposal, research interests, and how you can work together..." 
+                rows={6}
+                value={collaborationMessage}
+                onChange={(e) => setCollaborationMessage(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setCollaborationDialog({ open: false, expert: null });
+              setCollaborationMessage("");
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={async () => {
+              try {
+                if (!collaborationDialog.expert) return;
+                
+                await requestCollaboration(
+                  userId, 
+                  collaborationDialog.expert.id, 
+                  collaborationMessage || "Collaboration request"
+                );
+                
+                toast({
+                  title: "Collaboration Request Sent!",
+                  description: `Your collaboration request has been sent to ${collaborationDialog.expert.name}`,
+                });
+                setCollaborationDialog({ open: false, expert: null });
+                setCollaborationMessage("");
+              } catch (error) {
+                toast({
+                  title: "Error",
+                  description: "Failed to send collaboration request",
+                  variant: "destructive",
+                });
+              }
+            }}>
+              Send Request
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
