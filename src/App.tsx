@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { UserType } from "@/lib/types";
 import { Navigation } from "@/components/Navigation";
 import { Chatbot } from "@/components/Chatbot";
+import { VoiceAssistant } from "@/components/VoiceAssistant";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Experts from "./pages/Experts";
@@ -43,6 +44,12 @@ const App = () => {
     localStorage.removeItem("curalink_user_type");
   };
 
+  const handleChangeAccountType = () => {
+    const newType = userType === "patient" ? "researcher" : "patient";
+    setUserType(newType);
+    localStorage.setItem("curalink_user_type", newType);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -53,7 +60,11 @@ const App = () => {
             <Onboarding onComplete={handleOnboardingComplete} />
           ) : (
             <>
-              <Navigation userType={userType} onLogout={handleLogout} />
+              <Navigation 
+                userType={userType} 
+                onLogout={handleLogout}
+                onChangeAccountType={handleChangeAccountType}
+              />
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard userType={userType} />} />
@@ -65,6 +76,7 @@ const App = () => {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Chatbot />
+              <VoiceAssistant />
             </>
           )}
         </BrowserRouter>
