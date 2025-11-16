@@ -166,7 +166,7 @@ interface RecommendationItem {
 }
 
 function RecommendationCard({ recommendation }: { recommendation: RecommendationItem }) {
-  const { type, item, reason } = recommendation;
+  const { type, reason } = recommendation;
 
   const getNavigationPath = () => {
     switch (type) {
@@ -192,14 +192,14 @@ function RecommendationCard({ recommendation }: { recommendation: Recommendation
           <>
             <div className="flex items-center gap-3">
               <img
-                src={(item as Expert).photo}
-                alt={(item as Expert).name}
+                src={(recommendation as any).photo}
+                alt={(recommendation as any).name}
                 className="h-12 w-12 rounded-full object-cover"
               />
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold truncate">{(item as Expert).name}</h3>
+                <h3 className="font-semibold truncate">{(recommendation as any).name}</h3>
                 <p className="text-sm text-muted-foreground truncate">
-                  {(item as Expert).specialization}
+                  {(recommendation as any).specialization}
                 </p>
               </div>
             </div>
@@ -208,20 +208,20 @@ function RecommendationCard({ recommendation }: { recommendation: Recommendation
 
         {type === "trial" && (
           <>
-            <h3 className="font-semibold line-clamp-2">{(item as ClinicalTrial).title}</h3>
+            <h3 className="font-semibold line-clamp-2">{(recommendation as any).title}</h3>
             <div className="flex gap-2">
-              <Badge variant="outline">{(item as ClinicalTrial).phase}</Badge>
-              <Badge variant="outline">{(item as ClinicalTrial).status}</Badge>
+              <Badge variant="outline">{(recommendation as any).phase}</Badge>
+              <Badge variant="outline">{(recommendation as any).status}</Badge>
             </div>
           </>
         )}
 
         {type === "publication" && (
           <>
-            <h3 className="font-semibold line-clamp-2">{(item as Publication).title}</h3>
+            <h3 className="font-semibold line-clamp-2">{(recommendation as any).title}</h3>
             <p className="text-sm text-muted-foreground">
-              {(item as Publication).authors.slice(0, 2).join(", ")}
-              {(item as Publication).authors.length > 2 && " et al."}
+              {(recommendation as any).authors.slice(0, 2).join(", ")}
+              {(recommendation as any).authors.length > 2 && " et al."}
             </p>
           </>
         )}
