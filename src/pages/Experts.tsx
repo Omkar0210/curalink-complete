@@ -30,6 +30,10 @@ export default function Experts() {
     open: false,
     expert: null,
   });
+  const [profileDialog, setProfileDialog] = useState<{ open: boolean; expert: Expert | null }>({
+    open: false,
+    expert: null,
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -189,7 +193,11 @@ export default function Experts() {
 
               {/* Actions */}
               <div className="space-y-2 pt-2">
-                <Button variant="default" className="w-full">
+                <Button 
+                  variant="default" 
+                  className="w-full"
+                  onClick={() => setProfileDialog({ open: true, expert })}
+                >
                   View Profile
                 </Button>
                 <div className="grid grid-cols-3 gap-2">
@@ -223,6 +231,92 @@ export default function Experts() {
           </Card>
         ))}
       </div>
+
+      {/* Profile Dialog */}
+      <Dialog open={profileDialog.open} onOpenChange={(open) => setProfileDialog({ open, expert: null })}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Expert Profile</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="flex items-start gap-4">
+              <img
+                src={profileDialog.expert?.photo}
+                alt={profileDialog.expert?.name}
+                className="h-24 w-24 rounded-full object-cover"
+              />
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold">{profileDialog.expert?.name}</h2>
+                <p className="text-muted-foreground">{profileDialog.expert?.specialization}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary">
+                    {profileDialog.expert?.match}% Match
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-1">Institution</h3>
+                <p className="text-muted-foreground">{profileDialog.expert?.institution}</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-1">Location</h3>
+                <p className="text-muted-foreground">{profileDialog.expert?.country}</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-1">Research Areas</h3>
+                <div className="flex flex-wrap gap-2">
+                  {profileDialog.expert?.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-1">About</h3>
+                <p className="text-muted-foreground">
+                  {profileDialog.expert?.name} is a leading expert in {profileDialog.expert?.specialization} with extensive research experience at {profileDialog.expert?.institution}.
+                </p>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setProfileDialog({ open: false, expert: null });
+                if (profileDialog.expert) {
+                  toggleFollow(profileDialog.expert.id);
+                }
+              }}
+            >
+              {profileDialog.expert?.isFollowing ? "Unfollow" : "Follow"}
+            </Button>
+            <Button onClick={() => {
+              setProfileDialog({ open: false, expert: null });
+              if (profileDialog.expert) {
+                handleNudge(profileDialog.expert);
+              }
+            }}>
+              Nudge to Join
+            </Button>
+            <Button onClick={() => {
+              setProfileDialog({ open: false, expert: null });
+              if (profileDialog.expert) {
+                setMeetingDialog({ open: true, expert: profileDialog.expert });
+              }
+            }}>
+              Request Meeting
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Nudge Dialog */}
       <Dialog open={nudgeDialog.open} onOpenChange={(open) => setNudgeDialog({ open, expert: null })}>
