@@ -30,9 +30,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function Experts({ userId }: { userId: string }) {
+export default function Experts({ userId, userType }: { userId: string; userType?: string }) {
   const [experts, setExperts] = useState<Expert[]>([]);
+  const [researchers, setResearchers] = useState<any[]>([]);
   const [filteredExperts, setFilteredExperts] = useState<Expert[]>([]);
+  const [filteredResearchers, setFilteredResearchers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
@@ -52,11 +54,17 @@ export default function Experts({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadExperts();
-  }, []);
+    if (userType === "researcher") {
+      loadResearchers();
+    }
+  }, [userType]);
 
   useEffect(() => {
     filterExperts();
-  }, [searchQuery, experts]);
+    if (userType === "researcher") {
+      filterResearchers();
+    }
+  }, [searchQuery, experts, researchers]);
 
   const loadExperts = async () => {
     try {
@@ -81,6 +89,61 @@ export default function Experts({ userId }: { userId: string }) {
     }
   };
 
+  const loadResearchers = () => {
+    // Load all researchers from localStorage (simulated database)
+    const allResearchers: any[] = [];
+    
+    // Get current user's data
+    const currentUserData = localStorage.getItem("curalink_researcher_data");
+    let currentUserId = "";
+    if (currentUserData) {
+      try {
+        const parsed = JSON.parse(currentUserData);
+        currentUserId = parsed.email; // Use email as unique identifier
+      } catch (error) {
+        console.error("Error parsing current user data:", error);
+      }
+    }
+
+    // For demo purposes, add some sample researchers
+    // In production, this would come from the database
+    const sampleResearchers = [
+      {
+        id: "r1",
+        name: "Dr. Emily Chen",
+        institution: "Stanford University",
+        fieldOfResearch: "Oncology",
+        yearsOfExperience: "15",
+        bio: "Leading researcher in cancer immunotherapy",
+        email: "emily.chen@stanford.edu",
+      },
+      {
+        id: "r2",
+        name: "Dr. Michael Rodriguez",
+        institution: "MIT",
+        fieldOfResearch: "Neuroscience",
+        yearsOfExperience: "12",
+        bio: "Specializing in neural network analysis",
+        email: "m.rodriguez@mit.edu",
+      },
+      {
+        id: "r3",
+        name: "Dr. Sarah Williams",
+        institution: "Johns Hopkins",
+        fieldOfResearch: "Cardiology",
+        yearsOfExperience: "18",
+        bio: "Cardiovascular disease prevention expert",
+        email: "s.williams@jhu.edu",
+      },
+    ];
+
+    // Filter out current user
+    const filteredResearchers = sampleResearchers.filter(r => r.email !== currentUserId);
+    
+    setResearchers(filteredResearchers);
+    setFilteredResearchers(filteredResearchers);
+  };
+
   const filterExperts = () => {
     if (!searchQuery.trim()) {
       setFilteredExperts(experts);
@@ -96,6 +159,22 @@ export default function Experts({ userId }: { userId: string }) {
         expert.tags.some((tag) => tag.toLowerCase().includes(query))
     );
     setFilteredExperts(filtered);
+  };
+
+  const filterResearchers = () => {
+    if (!searchQuery.trim()) {
+      setFilteredResearchers(researchers);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = researchers.filter(
+      (researcher) =>
+        researcher.name.toLowerCase().includes(query) ||
+        researcher.institution.toLowerCase().includes(query) ||
+        researcher.fieldOfResearch.toLowerCase().includes(query)
+    );
+    setFilteredResearchers(filtered);
   };
 
   const toggleFollow = async (expertId: string) => {
@@ -289,6 +368,66 @@ export default function Experts({ userId }: { userId: string }) {
           </Card>
         ))}
       </div>
+
+      {/* Researchers Section (Only visible for researchers) */}
+      {userType === "researcher" && (
+        <>
+          <div className="pt-8 border-t">
+            <h2 className="text-3xl font-bold mb-4">Other Researchers</h2>
+            <p className="text-xl text-muted-foreground mb-6">
+              Connect and collaborate with fellow researchers
+            </p>
+
+            <div className="text-sm text-muted-foreground mb-6">
+              Showing {filteredResearchers.length} of {researchers.length} researchers
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredResearchers.map((researcher) => (
+                <Card key={researcher.id} className="p-6 hover:shadow-lg transition-all">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg">{researcher.name}</h3>
+                      <p className="text-sm text-muted-foreground">{researcher.institution}</p>
+                      <Badge variant="secondary">{researcher.fieldOfResearch}</Badge>
+                    </div>
+
+                    <div className="text-sm text-muted-foreground">
+                      <p><strong>Experience:</strong> {researcher.yearsOfExperience} years</p>
+                      {researcher.bio && <p className="mt-2 line-clamp-2">{researcher.bio}</p>}
+                    </div>
+
+                    <div className="space-y-2 pt-2">
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        onClick={async () => {
+                          try {
+                            await requestCollaboration(userId, researcher.id, "Collaboration request");
+                            toast({
+                              title: "Collaboration Request Sent!",
+                              description: `Your request has been sent to ${researcher.name}`,
+                            });
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: "Failed to send collaboration request",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Request Collaboration
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Profile Dialog */}
       <Dialog open={profileDialog.open} onOpenChange={(open) => setProfileDialog({ open, expert: null })}>

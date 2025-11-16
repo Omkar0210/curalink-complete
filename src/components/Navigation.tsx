@@ -34,7 +34,7 @@ export function Navigation({ userType, onLogout, onChangeAccountType }: Navigati
 
   const researcherLinks = [
     { href: "/dashboard", label: "Dashboard", icon: User },
-    { href: "/dashboard", label: "My Research Page", icon: FileText },
+    { href: "/myresearch", label: "My Research Page", icon: FileText },
     { href: "/experts", label: "Find Collaboration", icon: Search },
     { href: "/trials", label: "Clinical Trials", icon: Beaker },
     { href: "/publications", label: "Publications", icon: FileText },

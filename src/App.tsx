@@ -15,6 +15,7 @@ import Trials from "./pages/Trials";
 import Publications from "./pages/Publications";
 import Forums from "./pages/Forums";
 import Favourites from "./pages/Favourites";
+import MyResearch from "./pages/MyResearch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,8 +74,9 @@ const App = () => {
               />
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/myresearch" element={<MyResearch userId="guest" />} />
                 <Route path="/dashboard" element={<Dashboard userType={userType} userId="guest" />} />
-                <Route path="/experts" element={<Experts userId="guest" />} />
+                <Route path="/experts" element={<Experts userId="guest" userType={userType} />} />
                 <Route path="/trials" element={<Trials userId="guest" />} />
                 <Route path="/publications" element={<Publications userId="guest" />} />
                 <Route path="/forums" element={<Forums userId="guest" userName="Guest" />} />

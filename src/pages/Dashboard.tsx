@@ -31,11 +31,45 @@ export default function Dashboard({ userType, userId }: DashboardProps) {
   const loadRecommendations = async () => {
     try {
       const data = await getRecommendations(userType);
-      const allRecs = [
+      let allRecs = [
         ...data.experts,
         ...data.trials,
         ...data.publications
       ];
+
+      // For researchers, filter recommendations based on their field of research
+      if (userType === "researcher") {
+        const researcherData = localStorage.getItem("curalink_researcher_data");
+        if (researcherData) {
+          try {
+            const researcher = JSON.parse(researcherData);
+            const field = researcher.fieldOfResearch?.toLowerCase() || "";
+            
+            if (field) {
+              // Filter publications by field relevance
+              allRecs = allRecs.filter((rec: any) => {
+                if (rec.abstract) {
+                  // Publication
+                  const content = (rec.abstract + " " + rec.title + " " + rec.tags.join(" ")).toLowerCase();
+                  return content.includes(field) || rec.tags.some((tag: string) => 
+                    tag.toLowerCase().includes(field) || field.includes(tag.toLowerCase())
+                  );
+                } else if (rec.description) {
+                  // Clinical Trial
+                  const content = (rec.description + " " + rec.title + " " + rec.tags.join(" ")).toLowerCase();
+                  return content.includes(field) || rec.tags.some((tag: string) => 
+                    tag.toLowerCase().includes(field) || field.includes(tag.toLowerCase())
+                  );
+                }
+                return true; // Keep experts
+              });
+            }
+          } catch (error) {
+            console.error("Error parsing researcher data:", error);
+          }
+        }
+      }
+      
       setRecommendations(allRecs);
     } catch (error) {
       console.error("Error loading recommendations:", error);
