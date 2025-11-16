@@ -26,7 +26,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userType, userId }: DashboardProps) {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +36,12 @@ export default function Dashboard({ userType, userId }: DashboardProps) {
   const loadRecommendations = async () => {
     try {
       const data = await getRecommendations(userType);
-      setRecommendations(data);
+      const allRecs = [
+        ...(data.experts || []),
+        ...(data.trials || []),
+        ...(data.publications || [])
+      ];
+      setRecommendations(allRecs);
     } catch (error) {
       console.error("Error loading recommendations:", error);
     } finally {

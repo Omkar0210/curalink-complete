@@ -3,9 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Expert, getExperts, sendToN8n } from "@/lib/api";
-import { Search, UserPlus, Bell, Calendar, Heart } from "lucide-react";
+import { Search, UserPlus, Bell, Calendar, Heart, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getExperts, followExpert, unfollowExpert, isFollowingExpert, requestCollaboration } from "@/lib/supabase-api";
 import {
   Dialog,
   DialogContent,
@@ -49,8 +49,19 @@ export default function Experts({ userId }: { userId: string }) {
       const data = await getExperts();
       setExperts(data);
       setFilteredExperts(data);
+      
+      const followingStatus: Record<string, boolean> = {};
+      for (const expert of data) {
+        followingStatus[expert.id] = await isFollowingExpert(userId, expert.id);
+      }
+      setFollowingMap(followingStatus);
     } catch (error) {
       console.error("Error loading experts:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load experts",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
