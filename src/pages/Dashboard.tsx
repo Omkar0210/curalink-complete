@@ -100,10 +100,12 @@ export default function Dashboard({ userType, userId }: DashboardProps) {
                 ? "Based on your profile, we found 3 new clinical trials that might be relevant to you. Dr. Sarah Chen at Memorial Sloan Kettering has published new research on immunotherapy approaches."
                 : "Your recent publication has been cited 12 times this month. We identified 5 potential collaborators working on similar research topics. Consider reaching out to expand your network."}
             </p>
-            <Button size="sm">
-              View Details
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <Link to={userType === "patient" ? "/trials" : "/experts"}>
+              <Button size="sm">
+                View Details
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </Card>
