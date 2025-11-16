@@ -2,13 +2,8 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Recommendation,
-  getRecommendations,
-  Expert,
-  ClinicalTrial,
-  Publication,
-} from "@/lib/api";
+import { getRecommendations } from "@/lib/supabase-api";
+import { Expert, ClinicalTrial, Publication } from "@/lib/api";
 import { UserType } from "@/lib/types";
 import {
   TrendingUp,
@@ -37,9 +32,9 @@ export default function Dashboard({ userType, userId }: DashboardProps) {
     try {
       const data = await getRecommendations(userType);
       const allRecs = [
-        ...(data.experts || []),
-        ...(data.trials || []),
-        ...(data.publications || [])
+        ...data.experts,
+        ...data.trials,
+        ...data.publications
       ];
       setRecommendations(allRecs);
     } catch (error) {
@@ -163,7 +158,14 @@ export default function Dashboard({ userType, userId }: DashboardProps) {
   );
 }
 
-function RecommendationCard({ recommendation }: { recommendation: Recommendation }) {
+interface RecommendationItem {
+  type: 'expert' | 'trial' | 'publication';
+  id: string;
+  reason: string;
+  [key: string]: any;
+}
+
+function RecommendationCard({ recommendation }: { recommendation: RecommendationItem }) {
   const { type, item, reason } = recommendation;
 
   const getNavigationPath = () => {

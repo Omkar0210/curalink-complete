@@ -6,6 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { Search, UserPlus, Bell, Calendar, Heart, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getExperts, followExpert, unfollowExpert, isFollowingExpert, requestCollaboration } from "@/lib/supabase-api";
+
+interface Expert {
+  id: string;
+  name: string;
+  specialization: string;
+  institution: string;
+  country: string;
+  tags: string[];
+  photo: string | null;
+  match_score: number | null;
+  distance?: number;
+  isFollowing?: boolean;
+}
 import {
   Dialog,
   DialogContent,
@@ -22,6 +35,7 @@ export default function Experts({ userId }: { userId: string }) {
   const [filteredExperts, setFilteredExperts] = useState<Expert[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
   const [nudgeDialog, setNudgeDialog] = useState<{ open: boolean; expert: Expert | null }>({
     open: false,
     expert: null,
@@ -84,47 +98,80 @@ export default function Experts({ userId }: { userId: string }) {
     setFilteredExperts(filtered);
   };
 
-  const toggleFollow = (expertId: string) => {
-    setExperts((prev) =>
-      prev.map((expert) =>
-        expert.id === expertId
-          ? { ...expert, isFollowing: !expert.isFollowing }
-          : expert
-      )
-    );
+  const toggleFollow = async (expertId: string) => {
+    const isCurrentlyFollowing = followingMap[expertId];
+    
+    try {
+      if (isCurrentlyFollowing) {
+        await unfollowExpert(userId, expertId);
+      } else {
+        await followExpert(userId, expertId);
+      }
+      
+      setFollowingMap(prev => ({ ...prev, [expertId]: !isCurrentlyFollowing }));
+      setExperts((prev) =>
+        prev.map((expert) =>
+          expert.id === expertId
+            ? { ...expert, isFollowing: !isCurrentlyFollowing }
+            : expert
+        )
+      );
 
-    const expert = experts.find((e) => e.id === expertId);
-    const isNowFollowing = !expert?.isFollowing;
-
-    toast({
-      title: isNowFollowing ? "Following" : "Unfollowed",
-      description: isNowFollowing
-        ? `You are now following ${expert?.name}`
-        : `You unfollowed ${expert?.name}`,
-    });
-
-    sendToN8n("expert_follow", { expertId, expert: expert?.name, action: isNowFollowing ? "follow" : "unfollow" });
+      const expert = experts.find((e) => e.id === expertId);
+      toast({
+        title: isCurrentlyFollowing ? "Unfollowed" : "Following",
+        description: isCurrentlyFollowing
+          ? `You unfollowed ${expert?.name}`
+          : `You are now following ${expert?.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update follow status",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleNudge = (expert: Expert) => {
     setNudgeDialog({ open: true, expert });
   };
 
-  const sendNudge = () => {
-    toast({
-      title: "Nudge Sent!",
-      description: `We've notified ${nudgeDialog.expert?.name} about your interest in collaboration.`,
-    });
-    sendToN8n("expert_nudge", { expertId: nudgeDialog.expert?.id, expertName: nudgeDialog.expert?.name });
+  const sendNudge = async () => {
+    if (!nudgeDialog.expert) return;
+    
+    try {
+      await requestCollaboration(userId, nudgeDialog.expert.id, "Interested in collaboration");
+      toast({
+        title: "Nudge Sent!",
+        description: `We've notified ${nudgeDialog.expert?.name} about your interest in collaboration.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send nudge",
+        variant: "destructive",
+      });
+    }
     setNudgeDialog({ open: false, expert: null });
   };
 
-  const requestMeeting = () => {
-    toast({
-      title: "Meeting Request Sent!",
-      description: `Your meeting request has been sent to ${meetingDialog.expert?.name}.`,
-    });
-    sendToN8n("meeting_request", { expertId: meetingDialog.expert?.id, expertName: meetingDialog.expert?.name });
+  const requestMeeting = async () => {
+    if (!meetingDialog.expert) return;
+    
+    try {
+      await requestCollaboration(userId, meetingDialog.expert.id, "Meeting request");
+      toast({
+        title: "Meeting Request Sent!",
+        description: `Your meeting request has been sent to ${meetingDialog.expert?.name}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send meeting request",
+        variant: "destructive",
+      });
+    }
     setMeetingDialog({ open: false, expert: null });
   };
 
@@ -179,9 +226,9 @@ export default function Experts({ userId }: { userId: string }) {
                   <p className="text-sm text-muted-foreground truncate">
                     {expert.specialization}
                   </p>
-                  <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1">
                     <Badge variant="secondary" className="text-xs">
-                      {expert.match}% Match
+                      {expert.match_score || 0}% Match
                     </Badge>
                   </div>
                 </div>
@@ -216,10 +263,10 @@ export default function Experts({ userId }: { userId: string }) {
                     variant="outline"
                     size="sm"
                     onClick={() => toggleFollow(expert.id)}
-                    className={expert.isFollowing ? "bg-primary/10" : ""}
+                    className={followingMap[expert.id] ? "bg-primary/10" : ""}
                   >
                     <Heart
-                      className={`h-4 w-4 ${expert.isFollowing ? "fill-current" : ""}`}
+                      className={`h-4 w-4 ${followingMap[expert.id] ? "fill-current" : ""}`}
                     />
                   </Button>
                   <Button
@@ -261,7 +308,7 @@ export default function Experts({ userId }: { userId: string }) {
                 <p className="text-muted-foreground">{profileDialog.expert?.specialization}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="secondary">
-                    {profileDialog.expert?.match}% Match
+                    {profileDialog.expert?.match_score || 0}% Match
                   </Badge>
                 </div>
               </div>
@@ -307,7 +354,7 @@ export default function Experts({ userId }: { userId: string }) {
                 }
               }}
             >
-              {profileDialog.expert?.isFollowing ? "Unfollow" : "Follow"}
+              {followingMap[profileDialog.expert?.id || ''] ? "Unfollow" : "Follow"}
             </Button>
             <Button onClick={() => {
               setProfileDialog({ open: false, expert: null });
