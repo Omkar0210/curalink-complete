@@ -14,7 +14,479 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_rooms: {
+        Row: {
+          collaboration_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          collaboration_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          collaboration_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_rooms_collaboration_id_fkey"
+            columns: ["collaboration_id"]
+            isOneToOne: false
+            referencedRelation: "collaborations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_trials: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          latitude: number | null
+          location: string
+          longitude: number | null
+          phase: string
+          status: string
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          latitude?: number | null
+          location: string
+          longitude?: number | null
+          phase: string
+          status: string
+          summary: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          latitude?: number | null
+          location?: string
+          longitude?: number | null
+          phase?: string
+          status?: string
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collaborations: {
+        Row: {
+          created_at: string
+          expert_id: string
+          id: string
+          message: string | null
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expert_id: string
+          id?: string
+          message?: string | null
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expert_id?: string
+          id?: string
+          message?: string | null
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborations_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "experts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborations_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experts: {
+        Row: {
+          country: string
+          created_at: string
+          id: string
+          institution: string
+          latitude: number | null
+          longitude: number | null
+          match_score: number | null
+          name: string
+          photo: string | null
+          specialization: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          id?: string
+          institution: string
+          latitude?: number | null
+          longitude?: number | null
+          match_score?: number | null
+          name: string
+          photo?: string | null
+          specialization: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: string
+          institution?: string
+          latitude?: number | null
+          longitude?: number | null
+          match_score?: number | null
+          name?: string
+          photo?: string | null
+          specialization?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      favourites: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favourites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_comments: {
+        Row: {
+          author_id: string
+          author_name: string
+          content: string
+          created_at: string
+          forum_id: string
+          id: string
+        }
+        Insert: {
+          author_id: string
+          author_name: string
+          content: string
+          created_at?: string
+          forum_id: string
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          content?: string
+          created_at?: string
+          forum_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_comments_forum_id_fkey"
+            columns: ["forum_id"]
+            isOneToOne: false
+            referencedRelation: "forums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forums: {
+        Row: {
+          author_id: string
+          author_name: string
+          category: string
+          content: string
+          created_at: string
+          id: string
+          tags: string[]
+          title: string
+          updated_at: string
+          views: number | null
+        }
+        Insert: {
+          author_id: string
+          author_name: string
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          views?: number | null
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forums_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          room_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          room_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          room_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+          user_type: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          updated_at?: string
+          user_type: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
+      publications: {
+        Row: {
+          abstract: string
+          authors: string[]
+          created_at: string
+          id: string
+          summary: string
+          tags: string[]
+          title: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          abstract: string
+          authors?: string[]
+          created_at?: string
+          id?: string
+          summary: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          abstract?: string
+          authors?: string[]
+          created_at?: string
+          id?: string
+          summary?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      researchers: {
+        Row: {
+          bio: string | null
+          created_at: string
+          experience: string | null
+          field_of_research: string | null
+          id: string
+          institution: string | null
+          orcid: string | null
+          research_gate: string | null
+          specialization: string | null
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          experience?: string | null
+          field_of_research?: string | null
+          id: string
+          institution?: string | null
+          orcid?: string | null
+          research_gate?: string | null
+          specialization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          experience?: string | null
+          field_of_research?: string | null
+          id?: string
+          institution?: string | null
+          orcid?: string | null
+          research_gate?: string | null
+          specialization?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "researchers_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_follows: {
+        Row: {
+          created_at: string
+          expert_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expert_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expert_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_follows_expert_id_fkey"
+            columns: ["expert_id"]
+            isOneToOne: false
+            referencedRelation: "experts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
