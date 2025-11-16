@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Phone } from "lucide-react";
+import { Mic, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Vapi from "@vapi-ai/web";
 
@@ -14,7 +14,7 @@ export function VoiceAssistant() {
   const vapiRef = useRef<Vapi | null>(null);
 
   useEffect(() => {
-    console.log("[VoiceAssistant] Initializing VAPI instance");
+    console.log("[VoiceAssistant] 🚀 Initializing VAPI instance");
     
     try {
       const vapiInstance = new Vapi(VAPI_PUBLIC_KEY);
@@ -22,114 +22,119 @@ export function VoiceAssistant() {
 
       // Listen to call events
       vapiInstance.on("call-start", () => {
-        console.log("[VoiceAssistant] Call started");
+        console.log("[VoiceAssistant] ✅ Call started");
         setIsActive(true);
         setIsLoading(false);
         setError("");
       });
 
       vapiInstance.on("call-end", () => {
-        console.log("[VoiceAssistant] Call ended");
+        console.log("[VoiceAssistant] 📞 Call ended");
         setIsActive(false);
         setIsLoading(false);
       });
 
       vapiInstance.on("error", (e) => {
-        console.error("[VoiceAssistant] Error:", e);
+        console.error("[VoiceAssistant] ❌ Error:", e);
         setError(e.message || "An error occurred");
         setIsLoading(false);
         setIsActive(false);
       });
 
       vapiInstance.on("message", (message) => {
-        console.log("[VoiceAssistant] Message:", message);
+        console.log("[VoiceAssistant] 💬 Message:", message);
       });
 
-      console.log("[VoiceAssistant] VAPI instance initialized successfully");
+      console.log("[VoiceAssistant] ✅ VAPI instance initialized successfully", vapiInstance);
     } catch (err) {
-      console.error("[VoiceAssistant] Failed to initialize VAPI:", err);
+      console.error("[VoiceAssistant] ❌ Failed to initialize VAPI:", err);
       setError("Failed to initialize voice assistant");
     }
 
     return () => {
       if (vapiRef.current) {
+        console.log("[VoiceAssistant] 🧹 Cleaning up VAPI instance");
         vapiRef.current.stop();
         vapiRef.current = null;
       }
     };
   }, []);
 
-  const startCall = async () => {
+  const handleStartCall = async () => {
+    console.log("[VoiceAssistant] 🔵 BUTTON CLICKED - Starting call process...");
+    console.log("[VoiceAssistant] 🔍 vapiRef.current:", vapiRef.current);
+    
     if (!vapiRef.current) {
-      console.error("[VoiceAssistant] VAPI not initialized");
+      console.error("[VoiceAssistant] ❌ VAPI not initialized");
       setError("Voice assistant not ready");
       return;
     }
 
-    console.log("[VoiceAssistant] Starting call...");
     setIsLoading(true);
     setError("");
 
     try {
       // Request microphone permission first
-      console.log("[VoiceAssistant] Requesting microphone permission...");
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("[VoiceAssistant] Microphone permission granted");
+      console.log("[VoiceAssistant] 🎤 Requesting microphone permission...");
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log("[VoiceAssistant] ✅ Microphone permission granted", stream);
 
       // Start the call
-      console.log("[VoiceAssistant] Calling vapi.start()...");
-      await vapiRef.current.start(ASSISTANT_ID);
-      console.log("[VoiceAssistant] Call started successfully");
+      console.log("[VoiceAssistant] 📞 Calling vapi.start() with assistantId:", ASSISTANT_ID);
+      const result = await vapiRef.current.start(ASSISTANT_ID);
+      console.log("[VoiceAssistant] ✅ vapi.start() completed successfully", result);
     } catch (error) {
-      console.error("[VoiceAssistant] Error starting call:", error);
+      console.error("[VoiceAssistant] ❌ ERROR in startCall:", error);
+      console.error("[VoiceAssistant] ❌ Error details:", {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : 'No stack'
+      });
+      
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      setError(`Failed to start: ${errorMsg}`);
+      setError(`Failed: ${errorMsg}`);
       setIsLoading(false);
       setIsActive(false);
     }
   };
 
-  const endCall = () => {
+  const handleEndCall = () => {
+    console.log("[VoiceAssistant] 🔴 END CALL BUTTON CLICKED");
+    
     if (!vapiRef.current) {
-      console.error("[VoiceAssistant] VAPI not initialized");
+      console.error("[VoiceAssistant] ❌ VAPI not initialized for ending call");
       return;
     }
 
-    console.log("[VoiceAssistant] Ending call...");
     try {
+      console.log("[VoiceAssistant] 📞 Calling vapi.stop()...");
       vapiRef.current.stop();
-      console.log("[VoiceAssistant] Call ended successfully");
+      console.log("[VoiceAssistant] ✅ Call ended successfully");
     } catch (error) {
-      console.error("[VoiceAssistant] Error ending call:", error);
+      console.error("[VoiceAssistant] ❌ Error ending call:", error);
       setError("Failed to end call");
     }
   };
 
   return (
-    <div className="fixed bottom-24 right-6 z-40">
+    <div className="fixed bottom-24 right-6 z-50">
       {error && (
         <div className="mb-2 max-w-xs text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-lg shadow-lg">
-          <div className="font-semibold mb-1">Voice Assistant Error</div>
+          <div className="font-semibold mb-1">Voice Error</div>
           <div>{error}</div>
         </div>
       )}
+      
       {!isActive ? (
         <div className="flex flex-col items-center gap-2">
           <Button
             size="lg"
+            onClick={handleStartCall}
             className={cn(
               "h-14 w-14 rounded-full shadow-lg transition-all hover:scale-110",
-              isLoading && "opacity-50 cursor-not-allowed animate-pulse"
+              isLoading && "opacity-50 animate-pulse"
             )}
-            onClick={startCall}
-            disabled={isLoading || !vapiRef.current}
-            title={
-              isLoading 
-                ? "Starting voice call..." 
-                : !vapiRef.current 
-                ? "Voice assistant unavailable" 
-                : "Start voice call"
-            }
+            title="Start voice call"
           >
             <Mic className="h-6 w-6" />
           </Button>
@@ -147,7 +152,7 @@ export function VoiceAssistant() {
           <Button
             size="sm"
             variant="destructive"
-            onClick={endCall}
+            onClick={handleEndCall}
             className="rounded-full shadow-lg"
           >
             <Phone className="h-4 w-4 mr-1" />
