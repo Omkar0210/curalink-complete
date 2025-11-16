@@ -75,10 +75,11 @@ const App = () => {
                 <Route path="/favourites" element={<Favourites />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              <Chatbot />
-              <VoiceAssistant />
             </>
           )}
+          {/* Chatbot and Voice Assistant appear on ALL pages */}
+          <Chatbot />
+          <VoiceAssistant />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
