@@ -194,29 +194,40 @@ export async function removeFavourite(userId: string, itemId: string) {
 // Follow/Unfollow Expert
 export async function followExpert(userId: string, expertId: string) {
   const { error } = await supabase
-    .from('user_follows')
+    .from("user_follows")
     .insert({ user_id: userId, expert_id: expertId });
 
-  if (error) throw error;
+  if (error) {
+    console.error("Error following expert", { userId, expertId, error });
+    throw error;
+  }
 }
 
 export async function unfollowExpert(userId: string, expertId: string) {
   const { error } = await supabase
-    .from('user_follows')
+    .from("user_follows")
     .delete()
-    .eq('user_id', userId)
-    .eq('expert_id', expertId);
+    .eq("user_id", userId)
+    .eq("expert_id", expertId);
 
-  if (error) throw error;
+  if (error) {
+    console.error("Error unfollowing expert", { userId, expertId, error });
+    throw error;
+  }
 }
 
 export async function isFollowingExpert(userId: string, expertId: string): Promise<boolean> {
-  const { data } = await supabase
-    .from('user_follows')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('expert_id', expertId)
-    .single();
+  const { data, error } = await supabase
+    .from("user_follows")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("expert_id", expertId)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    console.error("Error checking follow status", { userId, expertId, error });
+    return false;
+  }
 
   return !!data;
 }
