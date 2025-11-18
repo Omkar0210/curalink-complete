@@ -162,6 +162,35 @@ export async function getRecommendations(userType: string) {
   }
 }
 
+// Utility: ensure the current user has a profile row so FKs never fail
+async function ensureUserProfile(userId: string) {
+  if (!userId) return;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") {
+    console.error("Error checking user profile", { userId, error });
+    return;
+  }
+
+  if (!data) {
+    const { error: insertError } = await supabase.from("profiles").insert({
+      id: userId,
+      name: "Guest",
+      email: `${userId}@anonymous.local`,
+      user_type: "patient",
+    });
+
+    if (insertError) {
+      console.error("Error creating user profile", { userId, insertError });
+    }
+  }
+}
+
 // Favourites
 export async function getFavourites(userId: string) {
   const { data, error } = await supabase
@@ -193,6 +222,8 @@ export async function removeFavourite(userId: string, itemId: string) {
 
 // Follow/Unfollow Expert
 export async function followExpert(userId: string, expertId: string) {
+  await ensureUserProfile(userId);
+
   const { error } = await supabase
     .from("user_follows")
     .insert({ user_id: userId, expert_id: expertId });
@@ -234,13 +265,15 @@ export async function isFollowingExpert(userId: string, expertId: string): Promi
 
 // Collaborations
 export async function requestCollaboration(requesterId: string, expertId: string, message: string) {
+  await ensureUserProfile(requesterId);
+
   const { data, error } = await supabase
-    .from('collaborations')
+    .from("collaborations")
     .insert({
       requester_id: requesterId,
       expert_id: expertId,
       message,
-      status: 'pending'
+      status: "pending",
     })
     .select()
     .single();
