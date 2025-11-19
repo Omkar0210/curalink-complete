@@ -4,8 +4,8 @@ import { Mic, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Vapi from "@vapi-ai/web";
 
-const VAPI_PUBLIC_KEY = "1997e499-bcaf-4762-bab1-caae33735e04";
-const ASSISTANT_ID = "350e5c66-88a2-493d-9958-a2b955ad94de";
+const VAPI_PUBLIC_KEY = "37ad4adf-8b61-4c44-9a37-621777763b29";
+const ASSISTANT_ID = "bff9cfc5-1d55-4875-a63d-a83b5def5b70";
 
 export function VoiceAssistant() {
   const [isActive, setIsActive] = useState(false);
